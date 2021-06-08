@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -19,7 +18,8 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  const templateVars = { greeting: "Hello World!" };
+  res.render("hello_world", templateVars);
 });
 
 app.get("/set", (req, res) => {
@@ -29,6 +29,19 @@ app.get("/set", (req, res) => {
 
 app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
+});
+
+app.get("/urls_index", (req, res) => {
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
+
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+  };
+  res.render("urls_show", templateVars);
 });
 
 app.listen(PORT, () => {
