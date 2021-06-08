@@ -2,10 +2,16 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const { json } = require("body-parser");
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
+
+const generateRandomString = () => {
+  let length = 6;
+  return Math.random().toString(20).substr(2, length);
+};
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
@@ -45,13 +51,31 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-// Shows short long url by short url code
+// POST handler for generating url and then redirects to the url page.
+app.post("/urls", (req, res) => {
+  //console.log(req.body.longURL); // Log the POST request body to the console
+  let randomStrGenerated = generateRandomString();
+  urlDatabase[randomStrGenerated] = req.body.longURL;
+  console.log(urlDatabase);
+  res.redirect(`/urls/${randomStrGenerated}`);
+  //res.send("Ok"); // Respond with 'Ok' (we will replace this)
+});
+
+// Shows long url by short url code
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
   };
   res.render("urls_show", templateVars);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  if (longURL === undefined) {
+    res.send("Short url not found!");
+  }
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
