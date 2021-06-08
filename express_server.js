@@ -4,7 +4,6 @@ const PORT = 8080; // default port 8080
 //const bodyParser = require("body-parser");
 //const { json } = require("body-parser");
 
-
 //What would happen if a client requests a non-existent shortURL?
 //What happens to the urlDatabase when the server is restarted?
 
@@ -23,6 +22,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+// Views Homepage
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -31,19 +31,19 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/hello", (req, res) => {
-  const templateVars = { greeting: "Hello World!" };
-  res.render("hello_world", templateVars);
-});
+// app.get("/hello", (req, res) => {
+//   const templateVars = { greeting: "Hello World!" };
+//   res.render("hello_world", templateVars);
+// });
 
 app.get("/set", (req, res) => {
   const a = 1;
   res.send(`a = ${a}`);
 });
 
-app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
-});
+// app.get("/fetch", (req, res) => {
+//   res.send(`a = ${a}`);
+// });
 
 // Shows all generated short urls and their long urls
 app.get("/urls_index", (req, res) => {
@@ -81,6 +81,12 @@ app.get("/u/:shortURL", (req, res) => {
     res.send("Short url not found!");
   }
   res.redirect(longURL);
+});
+
+// Delete a generated URL
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls_index");
 });
 
 app.listen(PORT, () => {
