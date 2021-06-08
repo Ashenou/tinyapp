@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const bodyParser = require("body-parser");
+
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
@@ -31,11 +34,18 @@ app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
 });
 
+// Shows all generated short urls and their long urls
 app.get("/urls_index", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
+// Shows form to generate a new short url
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
+// Shows short long url by short url code
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
