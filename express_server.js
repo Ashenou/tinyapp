@@ -1,10 +1,15 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const bodyParser = require("body-parser");
-const { json } = require("body-parser");
+//const bodyParser = require("body-parser");
+//const { json } = require("body-parser");
 
-app.use(bodyParser.urlencoded({ extended: true }));
+
+//What would happen if a client requests a non-existent shortURL?
+//What happens to the urlDatabase when the server is restarted?
+
+//app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
