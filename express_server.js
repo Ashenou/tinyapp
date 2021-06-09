@@ -75,6 +75,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// GET - To display details for a URL with an option to edit it
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   if (longURL === undefined) {
@@ -82,6 +83,13 @@ app.get("/u/:shortURL", (req, res) => {
   }
   res.redirect(longURL);
 });
+
+// POST - To submit changes to a specific URL
+app.post("/urls/:shortURL", (req, res) => {
+  urlDatabase[req.params.shortURL] = req.body.longURL;
+  res.redirect("/urls_index");
+});
+
 
 // Delete a generated URL
 app.post("/urls/:id/delete", (req, res) => {
