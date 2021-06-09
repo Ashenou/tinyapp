@@ -18,9 +18,9 @@
       </div>
     </div>
       <div class="card-footer text-muted form-group mb-2">
-      <form class="form-inline" action="/urls" method="POST">
+      <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
           <label for="longURL">Enter a URL:</label>
-          <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
+          <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em" value="<%= longURL %>">
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </form>
