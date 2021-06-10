@@ -9,23 +9,20 @@
             <div class="navbar-nav">
                 <a class="nav-item nav-link" href="/urls">My URLs</a>
                 <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-                <a class="nav-item nav-link" href="/register">Register new account</a>
-            </div>
-        </div>
-        <% if( typeof user !== 'undefined' && typeof user_id !=='undefined' && typeof user[user_id] !=='undefined' && typeof user[user_id] !=='undefined' && user[user_id]){ %>
-            <form action="/logout" class="form-inline">
-            <h5>Logged in As: <%=user[user_id]%>!</h5>
+                           
+        <!-- if user is logged in -->
+        <% if(user){ %>
+            <form action="/logout" class="form-inline float-right">
+            <a class="nav-item nav-link">Logged in As: <%=user.email%>!</a>
             <span class="ml-2">
             <input class="btn btn-outline-danger" type="submit" value="Logout"/>
         </span>
         </form>
-          <% } else { %>  
-            <form class="form-inline" method="POST" action="/login">
-                <input type="text" name="username" id="" placeholder="username" class=" form-control "/>
-                <span class="ml-3">
-                <input type="submit" value="Login" class="btn btn-outline-dark" />
-            </span>
-            </form>
+          <% } else { %>
+            <a class="nav-item nav-link" href="/register">Register new account</a>
+                <a class="nav-item nav-link" href="/login">Login</a>
          <% } %>
+        </div>
+    </div>
     </nav>
 </header>

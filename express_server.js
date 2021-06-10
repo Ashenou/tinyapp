@@ -14,12 +14,6 @@ app.use(cookieParser());
 // Include ejs view engine
 app.set("view engine", "ejs");
 
-// Generates ID for urls and users
-const generateRandomString = () => {
-  let length = 6;
-  return Math.random().toString(20).substr(2, length);
-};
-
 //  Generated urls
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
@@ -40,10 +34,49 @@ const users = {
   },
 };
 
+// Generates ID for urls and users
+const generateRandomString = () => {
+  let length = 6;
+  return Math.random().toString(20).substr(2, length);
+};
+
+// Checks for userlogin credentials
+const loginCheck = (username, password) => {
+  for (let user in users) {
+    if (
+      users[user]["email"] === username &&
+      users[user]["password"] === password
+    ) {
+      return users[user]["id"];
+    }
+  }
+  return undefined;
+};
+
+// Checks if email already in registered in database
+const emailCheck = (email) => {
+  for (const key in users) {
+    if (users[key]["email"] === email) {
+      return false;
+    }
+  }
+  return true;
+};
+
+// GET/ -- handler for home page
+app.get("/", (req, res) => {
+  const user_id = req.cookies["user_id"];
+  if (user_id !== undefined) {
+    console.log("here");
+    return res.redirect("/login");
+  }
+  return res.redirect("/urls");
+});
+
 // GET/urls -- Shows all generated short urls and their long urls
 app.get("/urls", (req, res) => {
   const user_id = req.cookies["user_id"];
-  const templateVars = { urls: urlDatabase};
+  const templateVars = { urls: urlDatabase };
   if (user_id !== "undefined") {
     Object.assign(templateVars, { user: users[user_id] });
   }
@@ -129,13 +162,29 @@ app.post("/urls/:id/delete", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.get("/login", (req, res) => {
+  const user_id = req.cookies["user_id"];
+  if (user_id === undefined) {
+    res.render("user_login");
+  }
+});
+
 // POST/login -- Handles user login
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("user_id", req.body.username);
-  const templateVars = { urls: urlDatabase, user };
-  console.log(templateVars);
-  res.render("urls_index", templateVars);
+  //const username = req.body.username;
+  const templateVars = { urls: urlDatabase };
+
+  const user_id = loginCheck(req.body.username, req.body.password);
+  console.log(user_id);
+
+  if (user_id !== undefined) {
+    res.cookie("user_id", user_id);
+    templateVars.user = users[user_id];
+    res.render("urls_index", templateVars);
+  } else {
+    res.status(403).send("Not found!");
+  }
+  //console.log(templateVars);
 });
 
 // GET -- Logout of user account
@@ -146,7 +195,6 @@ app.get("/logout", (req, res) => {
 
 // GET -- Registration form for user
 app.get("/register", (req, res) => {
-  //res.send("hello");
   res.render("user_register");
 });
 
@@ -159,12 +207,9 @@ app.post("/register", (req, res) => {
     req.body.email === "" ||
     req.body.password === ""
   ) {
-    return res.status(400);
-  }
-  for (const key in users) {
-    if (users[key].username === req.body.username) {
-      return res.status(400);
-    }
+    return res.status(400).send("Must enter all fields");
+  } else if (!emailCheck(req.body.email)) {
+    return res.status(400).send("Wrong credentials");
   }
   const user = (users[newId] = {
     username: req.body.username,
@@ -177,5 +222,5 @@ app.post("/register", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Tiny app listening on port ${PORT}!`);
 });
