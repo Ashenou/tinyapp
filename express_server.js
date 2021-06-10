@@ -114,7 +114,6 @@ app.get("/urls/:shortURL", (req, res) => {
       longURL: urlDatabase[req.params.shortURL],
     },
   };
-
   if (user_id !== "undefined") {
     Object.assign(templateVars, { user: users[user_id] });
   }
@@ -122,50 +121,58 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 // GET/u/:shortURL - To display details for a URL with an option to edit it
-app.get("/u/:shortURL", (req, res) => {
-  const user_id = req.cookies["user_id"];
+// app.get("/u/:shortURL", (req, res) => {
+//   const user_id = req.cookies["user_id"];
+//   const templateVars = {
+//     urls: {
+//       shortURL: req.params.shortURL,
+//       longURL: urlDatabase[req.params.shortURL],
+//     },
+//   };
+//   if (user_id !== "undefined") {
+//     Object.assign(templateVars, { user: users[user_id] });
+//   }
+//   console.log(templateVars);
+//   //const longURL = urlDatabase[req.params.shortURL];
+//   if (templateVars["longURL"] === undefined) {
+//     res.send("Short url not found!");
+//   }
+//   //res.redirect(longURL);
+//   res.render("urls_show", templateVars);
+// });
+
+// POST -- Edit URL
+app.post("/urls/:shortURL", (req, res) => {
+  let user_id = req.cookies["user_id"];
+
   const templateVars = {
-    urls: {
-      shortURL: req.params.shortURL,
-      longURL: urlDatabase[req.params.shortURL],
-    },
+    urls: urlDatabase,
   };
   if (user_id !== "undefined") {
     Object.assign(templateVars, { user: users[user_id] });
   }
-  console.log(templateVars);
-  //const longURL = urlDatabase[req.params.shortURL];
-  if (templateVars["longURL"] === undefined) {
-    res.send("Short url not found!");
-  }
-  //res.redirect(longURL);
-  res.render("urls_show", templateVars);
-});
-
-// POST -- Edit URL
-app.post("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    urls: urlDatabase,
-    username: req.cookies["username"],
-  };
   urlDatabase[req.params.shortURL] = req.body.longURL;
   res.render("urls_index", templateVars);
 });
 
 // POST/:id/delete -- Delete a generated URL
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
+  let user_id = req.cookies["user_id"];
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"],
   };
+  if (user_id !== "undefined") {
+    Object.assign(templateVars, { user: users[user_id] });
+  }
+  delete urlDatabase[req.params.id];
   res.render("urls_index", templateVars);
 });
 
 app.get("/login", (req, res) => {
   const user_id = req.cookies["user_id"];
+  let templateVars = {user:undefined};
   if (user_id === undefined) {
-    res.render("user_login");
+    res.render("user_login",templateVars);
   }
 });
 
@@ -189,13 +196,14 @@ app.post("/login", (req, res) => {
 
 // GET -- Logout of user account
 app.get("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("urls");
 });
 
 // GET -- Registration form for user
 app.get("/register", (req, res) => {
-  res.render("user_register");
+  let templateVars = {user:undefined};
+  res.render("user_register",templateVars);
 });
 
 // POST -- Create User
