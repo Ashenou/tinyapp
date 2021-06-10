@@ -13,14 +13,14 @@
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-        <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+        <h5 class="card-title">TinyURL for: <%= urls.longURL %></h5>
+        <p class="card-text">Short URL: <a href="/u/<%= urls.shortURL %>"><%= urls.shortURL %></a></p>
       </div>
     </div>
       <div class="card-footer text-muted form-group mb-2">
-      <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
-          <label for="longURL">Enter a URL:</label>
-          <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em" value="<%= longURL %>">
+      <form class="form-inline" action="/urls/<%= urls.shortURL %>" method="POST">
+          <label for="urls.longURL">Enter a URL:</label>
+          <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em" value="<%= urls.longURL %>">
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </form>
