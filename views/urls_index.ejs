@@ -25,6 +25,7 @@
             <th scope="col">Delete</th>
           </tr>
         </thead>
+      </span>
         <tbody>
           <% for(let url in urls) { %>
             <tr>
@@ -42,8 +43,12 @@
               </form>
             </tr>
             <% } %>
+            
         </tbody>
       </table>
+      <% if(!user){ %>
+        <h2 style="margin-left:30%">Please login first to see your urls!</h2>
+        <% } %>
     </main>
 
     <!-- Bootstrap JS -->
