@@ -2,18 +2,18 @@
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
+// bcrypt for hashing passwords
+//const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const PORT = 8080; // default port 8080
 
-//What would happen if a client requests a non-existent shortURL?
-//What happens to the urlDatabase when the server is restarted?
-
 app.use(express.urlencoded({ extended: true }));
-
 // Cookie parser is important to read the cookie
 app.use(cookieParser());
 // Include ejs view engine
 app.set("view engine", "ejs");
 
+//let bcrypt = dcodeIO.bcrypt;
 //  Generated urls
 // const urlDatabase = {
 //   b2xVn2: "http://www.lighthouselabs.ca",
@@ -26,15 +26,16 @@ const urlDatabase = {
 
 // Username and passwords
 const users = {
-  aJ48lW: {
+  'aJ48lW': {
     id: "aJ48lW",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    //password: bcrypt.hashSync("purple-monkey-dinosaur", 10),
+    password: bcrypt.hashSync("purple-monkey-dinosaur",bcrypt.genSaltSync(10)),
   },
-  user2RandomID: {
+  'user2RandomID': {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
+    password: bcrypt.hashSync("dishwasher-funk", 10),
   },
 };
 
@@ -49,7 +50,7 @@ const loginCheck = (username, password) => {
   for (let user in users) {
     if (
       users[user]["email"] === username &&
-      users[user]["password"] === password
+       bcrypt.compareSync(password, users[user]["password"])
     ) {
       return users[user]["id"];
     }
@@ -190,7 +191,7 @@ app.post("/login", (req, res) => {
   //const username = req.body.username;
   const templateVars = { urls: urlDatabase };
 
-  const user_id = loginCheck(req.body.username, req.body.password);
+  const user_id = loginCheck(req.body.email, req.body.password);
   console.log(user_id);
   if (user_id !== undefined) {
     res.cookie("user_id", user_id);
@@ -220,7 +221,6 @@ app.post("/register", (req, res) => {
   const newId = generateRandomString();
   // Checks if any of the form fields are empty
   if (
-    req.body.username === "" ||
     req.body.email === "" ||
     req.body.password === ""
   ) {
@@ -228,14 +228,17 @@ app.post("/register", (req, res) => {
   } else if (!emailCheck(req.body.email)) {
     return res.status(400).send("Wrong credentials");
   }
-  const user = (users[newId] = {
-    username: req.body.username,
+  //console.log(`req.body.password`, req.body.password);
+  console.log(bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10)));
+  users[newId] = {
+    id: newId,
     email: req.body.email,
-    password: req.body.password,
-  });
+    password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10)),
+  };
   console.log(users);
   res.cookie("user_id", newId);
-  res.render("urls_index", { urls: urlDatabase, user });
+  res.redirect("/urls");
+  //res.render("urls_index", { urls: urlDatabase, user });
 });
 
 //GET/u/:shortURL - To redirect urls details for a URL to redirect
