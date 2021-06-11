@@ -1,7 +1,8 @@
 /* eslint-disable camelcase */
+const cookieSession = require('cookie-session');
 const express = require("express");
 const app = express();
-const cookieParser = require("cookie-parser");
+//const cookieParser = require("cookie-parser");
 // bcrypt for hashing passwords
 //const bcrypt = require('bcrypt');
 const bcrypt = require('bcryptjs');
@@ -9,7 +10,11 @@ const PORT = 8080; // default port 8080
 
 app.use(express.urlencoded({ extended: true }));
 // Cookie parser is important to read the cookie
-app.use(cookieParser());
+//app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ["key1","key2"],
+}));
 // Include ejs view engine
 app.set("view engine", "ejs");
 
@@ -35,7 +40,8 @@ const users = {
   'user2RandomID': {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: bcrypt.hashSync("dishwasher-funk", 10),
+    password: bcrypt.hashSync("dishwasher-funk",bcrypt.genSaltSync(10)),
+    //password: bcrypt.hashSync("dishwasher-funk", 10),
   },
 };
 
@@ -81,7 +87,7 @@ const getUrlsForUser = (userID) => {
 
 // GET/ -- handler for home page
 app.get("/", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session["user_id"];
   if (user_id !== undefined) {
     //console.log("here");
     return res.redirect("/login");
@@ -91,7 +97,7 @@ app.get("/", (req, res) => {
 
 // GET/urls -- Shows all generated short urls and their long urls
 app.get("/urls", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session["user_id"];
   //const templateVars = { urls: urlDatabase };
   let templateVars = {};
   if (user_id !== "undefined") {
@@ -106,7 +112,7 @@ app.get("/urls", (req, res) => {
 
 // POST/urls -- handler for generating url and then redirects to the url page.
 app.post("/urls", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session["user_id"];
   const templateVars = { urls: urlDatabase, user: users[user_id] };
   //console.log(req.body.longURL); // Log the POST request body to the console
   let randomStrGenerated = generateRandomString();
@@ -117,7 +123,7 @@ app.post("/urls", (req, res) => {
 
 // GET/urls/new -- Shows form to generate a new short url
 app.get("/urls/new", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session["user_id"];
   let templateVars = { user: undefined };
   if (user_id === undefined) {
     //Object.assign(templateVars, { user: users[user_id] });
@@ -128,7 +134,7 @@ app.get("/urls/new", (req, res) => {
 
 // GET/urls/:shortURL -- Shows long url by short url code
 app.get("/urls/:shortURL", (req, res) => {
-  let user_id = req.cookies["user_id"];
+  let user_id = req.session["user_id"];
   let templateVars = { user: undefined };
   const url_id = req.params.shortURL;
   console.log(url_id);
@@ -147,7 +153,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // POST/urls/:shortURL -- Post back the modified url
 app.post("/urls/:shortURL", (req, res) => {
-  let user_id = req.cookies["user_id"];
+  let user_id = req.session["user_id"];
   const url_id = req.params.shortURL;
 
   const templateVars = {
@@ -163,7 +169,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // POST/:id/delete -- Delete a generated URL
 app.post("/urls/:id/delete", (req, res) => {
-  let user_id = req.cookies["user_id"];
+  let user_id = req.session["user_id"];
 
   if (user_id !== undefined) {
     delete urlDatabase[req.params.id];
@@ -177,7 +183,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session["user_id"];
 
   let templateVars = { user: undefined };
 
@@ -194,7 +200,8 @@ app.post("/login", (req, res) => {
   const user_id = loginCheck(req.body.email, req.body.password);
   console.log(user_id);
   if (user_id !== undefined) {
-    res.cookie("user_id", user_id);
+    //req.session("user_id", user_id);
+    req.session.user_id = user_id;
     templateVars.user = users[user_id];
     //return res.render("urls_index", templateVars);
     return res.redirect("/urls");
@@ -206,7 +213,8 @@ app.post("/login", (req, res) => {
 
 // GET -- Logout of user account
 app.get("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  //res.clearCookie("user_id");
+  req.session = null;
   res.redirect("urls");
 });
 
@@ -247,7 +255,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (longURL === undefined) {
     return res.send("Short url not found!");
   }
-  res.redirect(urlDatabase["b6UTxQ"].longURL);
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
