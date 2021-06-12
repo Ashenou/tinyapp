@@ -11,7 +11,7 @@
                 <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
                            
         <!-- if user is logged in -->
-        <% if(user){ %>
+        <% if(typeof user !== "undefined"){ %>
             <form action="/logout" class="form-inline float-right">
             <a class="nav-item nav-link">Logged in As: <%=user.email%>!</a>
             <span class="ml-2">

@@ -27,13 +27,14 @@
         </thead>
       </span>
         <tbody>
+          <% if (typeof urls !== "undefined"){ %>
           <% for(let url in urls) { %>
             <tr>
               <td>
                 <%= url %>
               </td>
               <td>
-                <%= urls[url] %>
+                <%= urls[url].longURL %>
               </td>
               <form method="GET" action="/urls/<%= url %>">
                 <td><button type="submit" class="btn btn-outline-primary">Edit</button></td>
@@ -43,14 +44,14 @@
               </form>
             </tr>
             <% } %>
-            
+          <%}%>
         </tbody>
       </table>
-      <% if(!user){ %>
-        <h2 style="margin-left:30%">Please login first to see your urls!</h2>
+      <% if(typeof user === "undefined"){ %>
+        <h2 style="margin-left:30%; color:red">Please login first to see your urls!</h2>
         <% } %>
     </main>
-
+  
     <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
       integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -61,6 +62,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"></script>
+
   </body>
 
 </html>
