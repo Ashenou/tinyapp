@@ -18,7 +18,7 @@ app.use(
 // Include ejs view engine
 app.set("view engine", "ejs");
 
-// Database of URLS including the user who owns it
+// URLS including the user who owns it
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
@@ -48,27 +48,35 @@ app.get("/", (req, res) => {
   }
 });
 
+/*
+   URL ROUTES
+///////////////////
+*/
+
 // GET/urls -- Shows all generated short urls and their long urls
 app.get("/urls", (req, res) => {
   const user_id = req.session.user_id;
   let templateVars = {};
 
+  // Checks if user is logged in or not
   if (typeof user_id !== "undefined") {
+    // Returns all urls for that user_id
     const urls = helper.getUrlsForUser(user_id, urlDatabase);
     const user = users[user_id];
+
     templateVars["urls"] = urls;
     templateVars["user"] = user;
     res.render("urls_index", templateVars);
   } else if (typeof user_id === "undefined") {
-    res.render("urls_index",templateVars);
+    res.render("urls_index", templateVars);
   }
 });
 
 // POST/urls -- handler for generating url and then redirects to the url page.
 app.post("/urls", (req, res) => {
   const user_id = req.session.user_id;
+  const randomStrGenerated = helper.generateRandomString();
 
-  let randomStrGenerated = helper.generateRandomString();
   urlDatabase[randomStrGenerated] = {
     longURL: req.body.longURL,
     userID: user_id,
@@ -79,6 +87,8 @@ app.post("/urls", (req, res) => {
 // GET/urls/new -- Shows form to generate a new short url
 app.get("/urls/new", (req, res) => {
   const user_id = req.session.user_id;
+
+  // Sending undefined user inside templateVars to check for the value in ejs
   let templateVars = { user: undefined };
   if (typeof user_id === "undefined") {
     res.redirect("/login");
@@ -88,12 +98,10 @@ app.get("/urls/new", (req, res) => {
 
 // GET/urls/:shortURL -- Shows long url by short url code to edit it
 app.get("/urls/:shortURL", (req, res) => {
-  let user_id = req.session.user_id;
-  let templateVars = { user: undefined };
-
+  const user_id = req.session.user_id;
   const url_id = req.params.shortURL;
-
-  let urls = helper.getUrlsForUser(user_id, urlDatabase);
+  const urls = helper.getUrlsForUser(user_id, urlDatabase);
+  let templateVars = { user: undefined };
 
   if (user_id !== undefined) {
     templateVars["urls"] = {
@@ -109,7 +117,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // POST/urls/:shortURL -- Post back the modified url
 app.post("/urls/:shortURL", (req, res) => {
-  let user_id = req.session.user_id;
+  const user_id = req.session.user_id;
   const url_id = req.params.shortURL;
 
   const templateVars = {
@@ -136,6 +144,13 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+
+/*
+   USER ROUTES
+///////////////////
+*/
+
+// GET/login -- login for user or redirects to /urls if logged in
 app.get("/login", (req, res) => {
   const user_id = req.session.user_id;
   let templateVars = { user: undefined };
@@ -146,7 +161,7 @@ app.get("/login", (req, res) => {
   }
 });
 
-// POST/login -- Handles user login
+// POST/login -- Handles user login valdidation
 app.post("/login", (req, res) => {
   const templateVars = {};
 
@@ -157,7 +172,7 @@ app.post("/login", (req, res) => {
     res.redirect("/urls");
   } else if (req.body.email === "" || req.body.password === "") {
     return res.status(400).send("You must enter all fields");
-   } else {
+  } else {
     res.status(403).send("Not found!");
   }
 });
@@ -174,14 +189,15 @@ app.get("/register", (req, res) => {
   res.render("user_register", templateVars);
 });
 
-// POST -- Create User
+// POST -- Creates a new user
 app.post("/register", (req, res) => {
   const newId = helper.generateRandomString();
-  // Checks if any of the form fields are empty
+
   if (req.body.email === "" || req.body.password === "") {
     return res.status(400).send("You must enter all fields");
   } else if (!helper.getUserByEmail(req.body.email, users)) {
-    return res.status(400).send("Wrong credentials entered");
+    // If user already registered returns back an error
+    return res.status(400).send("This email is already registered.");
   } else {
     users[newId] = {
       id: newId,
