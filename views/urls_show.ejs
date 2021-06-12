@@ -13,8 +13,8 @@
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= urls.longURL %></h5>
-        <p class="card-text">Short URL: <a href="/u/<%= urls.shortURL %>"><%= urls.shortURL %></a></p>
+        <h5 class="card-title">TinyURL for: <a href="/u/<%= urls.longURL %>"><%=  urls.longURL%></a></h5>
+        <p class="card-text">Short URL: <%= urls.shortURL %></p>
       </div>
     </div>
       <div class="card-footer text-muted form-group mb-2">
